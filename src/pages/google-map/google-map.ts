@@ -1,5 +1,6 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { NavController } from 'ionic-angular';
+import { GOOGLE_MAP_CIRCLE_OPTIONS } from "../../config/config"
 
 declare var google;
 
@@ -7,7 +8,7 @@ declare var google;
   selector: 'page-google-map',
   templateUrl: 'google-map.html'
 })
-export class GoogleMapPage {
+export class GoogleMapPage implements OnInit {
 
   @ViewChild('map') mapElement: ElementRef;
 
@@ -16,6 +17,12 @@ export class GoogleMapPage {
   _markers = [];
 
   constructor(public navCtrl: NavController) {}
+
+  ngOnInit() {
+    window['mapComponent'] = { // ading this component to window object to access public
+      googleMapComponent: this
+    };
+  }
 
   ionViewDidLoad() {
     // define a location that you want load first
@@ -40,6 +47,7 @@ export class GoogleMapPage {
       console.log("clicked location: ", location);
       this.clearMap();
       this.panMapTo(location);
+      this.drawCircle(location, 10);
     });
   }
 
@@ -55,6 +63,27 @@ export class GoogleMapPage {
     });
     // we need to push makers to array. we need these references to remove our marker later
     this._markers.push(marker);
+    this.showInfoWindow(marker);
+  }
+  private showInfoWindow(marker: any): void {
+    const infoWindow = new google.maps.InfoWindow();
+    const content = '<div> Test InfoWindow' +
+                      '<button onclick="onClickInfoWindowButton()" >More </button>'
+                    '</div>';
+
+    google.maps.event.addListener(marker, 'click', ((marker) => {
+      return () => {
+        infoWindow.setContent(content);
+        infoWindow.open(this._map, marker);
+      };
+    })(marker));
+  }
+
+  private drawCircle(center: { lat: number, lng: number }, radius: number): void {
+    const map = this._map;
+    const circleOption = Object.assign({}, GOOGLE_MAP_CIRCLE_OPTIONS, { map, center, radius: radius * 1000 })
+    const circle = new google.maps.Circle(circleOption);
+    this._markers.push(circle);
   }
 
   panMapTo(location: { lat: number, lng: number }): void {
@@ -74,4 +103,10 @@ export class GoogleMapPage {
       url: 'https://cdn.slidesharecdn.com/profile-photo-kpalmer1382-48x48.jpg'
     }
   }
+
+  public onClickInfoWindow(something: any) {
+    // do something
+    alert("InfoWindow Clicked")
+  }
+
 }

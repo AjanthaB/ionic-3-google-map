@@ -29,6 +29,24 @@
     }
   </script>-->
 
+  <script >
+    // function for get google map infowindow click event
+      function onClickInfoWindowButton(value) {
+        try {
+          if (!window.mapComponent) {
+            console.log('No window.mapComponent');
+            return;
+          }
+          if (!window.mapComponent.googleMapComponent) {
+            console.log('No window.mapComponent.googleMapComponent');
+            return;
+          }
+          window.mapComponent.googleMapComponent.onClickInfoWindow(value);
+        } catch (ex) { console.log('Error on Method Call', ex) }
+      }
+  
+  </script>
+
   <link href="build/main.css" rel="stylesheet">
 
 </head>
